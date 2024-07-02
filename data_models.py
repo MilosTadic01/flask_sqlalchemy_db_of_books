@@ -33,8 +33,9 @@ class Book(db.Model):
 
     # Define the relationship to the Parent model
     # this also automatically adds a 'books' attribute to the Parent
-    author = db.relationship('Author', backref=db.backref('books',
-                             lazy=True))
+    # 'books_author' is just the name of the relationship: behind curtains ORM
+    books_author = db.relationship('Author', backref=db.backref('books',
+                                   lazy=True))
 
     def __str__(self):
         return f"{self.title} by {self.author_id}, {self.publication_year}"

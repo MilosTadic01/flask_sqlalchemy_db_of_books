@@ -6,6 +6,7 @@ from data_models import db, Author, Book
 
 AUTHOR_ENTRY_COMPONENTS = ["name", "birthdate", "date_of_death"]
 BOOK_ENTRY_COMPONENTS = ["title", "isbn", "publication_year", "author"]
+QUERY_AUTHORS = "SELECT name, author_id FROM authors;"
 
 
 app = Flask(__name__)
@@ -15,17 +16,18 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 db.init_app(app)
 
 # Create tables, feel free to comment out after running once, though no need
-# with app.app_context():
-#     try:
-#         db.create_all()
-#         print("Tables created successfully.")
-#     except Exception as e:
-#         print(f"Error creating tables: {e}")
+with app.app_context():
+    try:
+        db.create_all()
+        print("Tables created successfully.")
+    except Exception as e:
+        print(f"Error creating tables: {e}")
 
 
 @app.route('/add_author', methods=['GET', 'POST'])
 def add_author():
-    """We are NOT in fact expecting JSON as Content-Type (application/json),
+    """Add author entry to authors table. MIME type remarks:
+    We are NOT in fact expecting JSON as Content-Type (application/json),
     bc we have no JS or cURL or Postman to set that up in the body. Instead,
     we are working with the default application/x-www-form-urlencoded, meaning
     we should use request.form.get() rather than request.get_json()."""
@@ -35,11 +37,11 @@ def add_author():
         name = request.form.get('name')
         birth = request.form.get('birthdate')
         death = request.form.get('date_of_death')
-        if not name or not birth:
+        if not name or not birth:  # redundant with current html, but still
             abort(400)
         new_author = Author()
         new_author.name = name
-        # Convert html date to Py datetime object, sqlalchemy wants it
+        # Convert html date to Py datetime object, Flask-SQLAlchemy wants it
         new_author.birth_date = datetime.strptime(birth, '%Y-%m-%d')
         if death:
             new_author.date_of_death = datetime.strptime(death, '%Y-%m-%d')
@@ -47,6 +49,40 @@ def add_author():
         db.session.commit()
         return jsonify(message=f"Author {request.form.get('name')} "
                        "added to database."), 201
+
+
+@app.route('/add_book', methods=['GET', 'POST'])
+def add_book():
+    """Add book entry to books table. Display dropdown menu to force
+    author input first."""
+    if request.method == 'GET':
+        authors_dict = {}
+        # Previously with sqlalchemy:
+        # results = connection.execute(text(QUERY))
+        # rows = results.fetchall()
+
+        # With Flask-SQLAlchemy you don't even need the QUERY
+        rows = db.session.query(Author.name, Author.author_id).all()
+        for row in rows:
+            authors_dict.update({row[0]: row[1]})
+        return render_template('add_book.html',
+                               authors_dict=authors_dict)
+    elif request.method == 'POST':
+        title = request.form.get('title')
+        isbn = request.form.get('isbn')
+        pub_year = request.form.get('pub_year')
+        author_id = request.form.get('author')
+        if not (title and isbn and pub_year and author_id):
+            abort(400)
+        new_book = Book(
+            title=title,
+            isbn=isbn,
+            publication_year=pub_year,
+            author_id=author_id
+        )
+        db.session.add(new_book)
+        db.session.commit()
+        return jsonify(message=f"'{title}' added to database."), 201
 
 
 @app.errorhandler(400)
