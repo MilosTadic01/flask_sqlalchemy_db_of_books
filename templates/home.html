@@ -6,9 +6,37 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
   </head>
   <body>
-
+    <form action="/" method="GET">
+      <label for="sort_by_dropdown">sort by:</label>
+      <!--If the method were 'POST', the names of <select>s and <input>s would
+       become keys in kv pairs in the request body with value= attr content
+       as value of the kv pair.
+       But since the method is 'GET', name: value gets formatted into a query
+       string where ?name=value
+       Just...Wow.
+       -->
+      <select id="sort_by_dropdown" name="sort">
+        <option value="title">title</option>
+        <option value="author">author</option>
+        <option value="year">publication year</option>
+      </select>
+      <label for="sorting_dir_dropdown">sorting direction:</label>
+      <select id="sorting_dir_dropdown" name="dir">
+        <option value="asc">ascending</option>
+        <option value="desc">descending</option>
+      </select>
+      <input type="submit" value="SORT">
+    </form>
+    <form action="/search" method="GET">
+      <label for="search_field"></label>
+      <input type="text" id="search_field" name="search" placeholder="search term...">
+      <input type="submit" value="SEARCH">
+    </form>
     {% for book in books %}
-    <div> <h3>{{ book.title }}</h3>
+    <div>
+      <h3>{{ book.title }}</h3>
+      <img src="{{ book.cover_url }}" alt="book_cover from openlibrary api"/>
+      <p>by {{ book.author }}</p>
     </div>
     {% endfor %}
 

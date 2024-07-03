@@ -1,6 +1,6 @@
-flask~=3.0.3
-sqlalchemy
+flask
 Flask-sqlalchemy
 jinja2
-
-Werkzeug~=3.0.3
+requests
+sqlalchemy
+Werkzeug
