@@ -4,8 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   </head>
   <body>
+      {% if popup %}
+          <ul class=flashes>
+          {% for category, message in popup %}
+              <li class="{{ category }}">{{ message }}</li>
+          {% endfor %}
+          </ul>
+      {% endif %}
     <form action="/" method="GET">
       <label for="sort_by_dropdown">sort by:</label>
       <!--If the method were 'POST', the names of <select>s and <input>s would
@@ -37,6 +45,7 @@
       <h3>{{ book.title }}</h3>
       <img src="{{ book.cover_url }}" alt="book_cover from openlibrary api"/>
       <p>by {{ book.author }}</p>
+      <input type="submit" value="/book/{{ book.isbn }}/delete">
     </div>
     {% endfor %}
 

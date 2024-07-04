@@ -2,7 +2,7 @@ import os
 import requests
 from datetime import datetime
 from werkzeug.exceptions import BadRequest
-from flask import Flask, request, abort, jsonify, render_template
+from flask import Flask, request, abort, jsonify, render_template, redirect, url_for, flash, get_flashed_messages
 from data_models import db, Author, Book
 
 GET_COVER_PREF = "https://covers.openlibrary.org/b/isbn/"
@@ -13,9 +13,11 @@ app = Flask(__name__)
 # instead of 'engine = create_engine('sqlite:///data/restaurants.sqlite')':
 db_path = os.path.join(os.getcwd(), 'data', 'library.sqlite')
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+# needed for flask.flash()
+app.config['SECRET_KEY'] = 'super_secret_key'
 db.init_app(app)
 
-# Create tables, feel free to comment out after running once, though no need
+# Create tables, feel free to comment out after running once, though no need:
 # with app.app_context():
 #     try:
 #         db.create_all()
@@ -26,12 +28,13 @@ db.init_app(app)
 
 @app.route('/')
 def index():
-    """Render a page with database contents + book cover images. I don't
-    understand why we couldn't only fetch the cover image urls once and store
+    """Render a page with database contents + book cover images. I'm not sure
+     why we couldn't only fetch the cover image urls once and store
     them in the DB, this is making the "rendering" much longer.
 
     db.session.query allows column specs; returns [tuples]
     Model.query (Book.query) forbids columns specs; returns [ORM objects] """
+    popup = get_flashed_messages(with_categories=True)
     rows = db.session.query(Book.title, Book.author_id, Book.isbn).all()
     sort_crit = request.args.get('sort')
     sort_dir = request.args.get('dir')
@@ -51,11 +54,12 @@ def index():
              'author': author_name,
              'cover_url': cover_url}
         )
-    return render_template('home.html', books=books_list), 200
+    return render_template('home.html', books=books_list,
+                           popup=popup), 200
 
 
 def get_sorted_rows(sort_crit, sort_dir):
-    """Handle sorting args in the query string."""
+    """Handle sorting args in the query string, return sorted table rows."""
     if sort_crit == 'title':
         if sort_dir == 'desc':
             rows = db.session.query(Book.title, Book.author_id, Book.isbn) \
@@ -103,7 +107,15 @@ def search():
              'author': author_name,
              'cover_url': cover_url}
         )
+    if not books_list:
+        return jsonify(message=f"No matches for {search_term}, go back."), 200
     return render_template('home.html', books=books_list), 200
+
+
+@app.route('/book/<int:book_id>/delete')
+def delete():
+    pass
+    return redirect(url_for('index'))
 
 
 def fetch_cover_url(isbn):
@@ -123,7 +135,8 @@ def add_author():
     we are working with the default application/x-www-form-urlencoded, meaning
     we should use request.form.get() rather than request.get_json()."""
     if request.method == 'GET':
-        return render_template('add_author.html')
+        popup = get_flashed_messages(with_categories=True)
+        return render_template('add_author.html', popup=popup), 200
     elif request.method == 'POST':
         name = request.form.get('name')
         birth = request.form.get('birthdate')
@@ -138,8 +151,9 @@ def add_author():
             new_author.date_of_death = datetime.strptime(death, '%Y-%m-%d')
         db.session.add(new_author)
         db.session.commit()
-        return jsonify(message=f"Author {request.form.get('name')} "
-                       "added to database."), 201
+        flash(f"Author {request.form.get('name')} added to database.", "info")
+        # Apparently client side needs the proper status code to redirect
+        return redirect(url_for('add_author')), 302
 
 
 @app.route('/add_book', methods=['GET', 'POST'])
@@ -147,6 +161,7 @@ def add_book():
     """Add book entry to books table. Display dropdown menu to force
     author input first."""
     if request.method == 'GET':
+        popup = get_flashed_messages(with_categories=True)
         authors_dict = {}
 
         # Previously with sqlalchemy:
@@ -158,7 +173,7 @@ def add_book():
         for row in rows:
             authors_dict.update({row[0]: row[1]})
         return render_template('add_book.html',
-                               authors_dict=authors_dict)
+                               authors_dict=authors_dict, popup=popup), 200
     elif request.method == 'POST':
         title = request.form.get('title')
         isbn = request.form.get('isbn')
@@ -174,7 +189,8 @@ def add_book():
         )
         db.session.add(new_book)
         db.session.commit()
-        return jsonify(message=f"'{title}' added to database."), 201
+        flash(f"'{title}' added to database.", "info")
+        return redirect(url_for('add_book')), 302
 
 
 @app.errorhandler(400)
