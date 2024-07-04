@@ -35,7 +35,8 @@ def index():
     db.session.query allows column specs; returns [tuples]
     Model.query (Book.query) forbids columns specs; returns [ORM objects] """
     popup = get_flashed_messages(with_categories=True)
-    rows = db.session.query(Book.title, Book.author_id, Book.isbn).all()
+    rows = db.session.query(Book.title, Book.author_id, Book.isbn,
+                            Book.book_id).all()
     sort_crit = request.args.get('sort')
     sort_dir = request.args.get('dir')
     if sort_crit:
@@ -52,7 +53,8 @@ def index():
         books_list.append(
             {'title': row[0],
              'author': author_name,
-             'cover_url': cover_url}
+             'cover_url': cover_url,
+             'book_id': row[3]}
         )
     return render_template('home.html', books=books_list,
                            popup=popup), 200
@@ -113,9 +115,15 @@ def search():
 
 
 @app.route('/book/<int:book_id>/delete')
-def delete():
-    pass
-    return redirect(url_for('index'))
+def delete(book_id: int):
+    """GET request is sufficient since we're including the id as a var. html
+    forms don't support DELETE anyway, and I see no reason for POST."""
+    book_obj_to_del = Book.query.filter(Book.book_id == book_id).one()
+    book_title = book_obj_to_del.title
+    db.session.delete(book_obj_to_del)
+    db.session.commit()
+    flash(f"'{book_title}' successfully deleted from database.", "info")
+    return redirect(url_for('index')), 302
 
 
 def fetch_cover_url(isbn):
@@ -143,6 +151,8 @@ def add_author():
         death = request.form.get('date_of_death')
         if not name or not birth:  # redundant with html 'required', but still
             abort(400)
+        if name in [author.name for author in Author.query.all()]:
+            return jsonify(message="Name already exists, be more specific.")
         new_author = Author()  # w/o attr 1st, so that I can check if 'death'
         new_author.name = name
         # Convert html date to Py datetime object, Flask-SQLAlchemy wants it
@@ -169,7 +179,7 @@ def add_book():
         # rows = results.fetchall()
 
         # With Flask-SQLAlchemy you don't even need the QUERY
-        rows = db.session.query(Author.name, Author.author_id).all()
+        rows = db.session.query(Author.author_id, Author.name).all()
         for row in rows:
             authors_dict.update({row[0]: row[1]})
         return render_template('add_book.html',

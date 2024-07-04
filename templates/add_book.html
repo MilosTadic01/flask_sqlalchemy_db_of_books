@@ -8,6 +8,9 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   </head>
   <body>
+    <nav class="navbar">
+      <a href="/">home</a>
+    </nav>
     {% if popup %}
           <ul class=flashes>
           {% for category, message in popup %}
@@ -24,8 +27,8 @@
       <input type="text" id="pub_year" name="pub_year" placeholder="1999" maxlength="4" required ><br><br>
       <label for="authors">Author:</label>
         <select name="author" id="authors" required>
-          {% for name, id in authors_dict.items() %}
-            <option value="{{ id }}">{{ name }}</option>
+          {% for author_id, author_name in authors_dict.items() %}
+            <option value="{{ author_id }}">{{ author_name }}</option>
           {% endfor %}
         </select>
       <input type="submit" value="Add Book">
