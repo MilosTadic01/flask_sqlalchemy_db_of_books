@@ -1,8 +1,8 @@
 import os
 import requests
 from datetime import datetime
-from werkzeug.exceptions import BadRequest
-from flask import Flask, request, abort, jsonify, render_template, redirect, url_for, flash, get_flashed_messages
+from flask import Flask, request, abort, jsonify, render_template, redirect
+from flask import url_for, flash, get_flashed_messages
 from data_models import db, Author, Book
 
 GET_COVER_PREF = "https://covers.openlibrary.org/b/isbn/"
@@ -10,7 +10,6 @@ GET_COVER_SUFF = "-M.jpg"
 
 app = Flask(__name__)
 
-# instead of 'engine = create_engine('sqlite:///data/restaurants.sqlite')':
 db_path = os.path.join(os.getcwd(), 'data', 'library.sqlite')
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 # needed for flask.flash()
@@ -44,7 +43,6 @@ def index():
     # Prepare a list of dicts to pass to Jinja2 in the html to render
     books_list = []
     for row in rows:
-        # automatically finds the existing db.session, no need to specify
         author_entry = Author.query.filter(Author.author_id == row[1]).one()
         author_name = "by <blank>"
         if author_entry:
@@ -179,15 +177,12 @@ def add_author():
 def add_book():
     """Add book entry to books table. Display dropdown menu to force
     author input first."""
+
     if request.method == 'GET':
         popup = get_flashed_messages(with_categories=True)
+
+        # populate the dropdown menu with available authors
         authors_dict = {}
-
-        # Previously with sqlalchemy:
-        # results = connection.execute(text(QUERY))
-        # rows = results.fetchall()
-
-        # With Flask-SQLAlchemy you don't even need the QUERY
         rows = db.session.query(Author.author_id, Author.name).all()
         for row in rows:
             authors_dict.update({row[0]: row[1]})
@@ -217,7 +212,7 @@ def error_bad_request(error):
     """Handles bad sorting params for 'GET' and missing info for 'POST'."""
     if request.method == 'GET':
         pass
-    else:  # for 'POST' and 'PUT'
+    else:
         return jsonify(message="Error: No fields may be empty"), 400
 
 

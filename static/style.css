@@ -29,6 +29,8 @@ input[type="submit"]:hover {
 select {
     margin-bottom: 50px;
     margin-top: 5px;
+    border: none;
+    border-radius: 2px;
 }
 
 .navbar {
@@ -49,7 +51,6 @@ select {
     align-items: center;
     padding: 0.5em;
     margin-bottom: 1em;
-    margin-top: 1em;
 }
 
 .menu input {
@@ -63,6 +64,10 @@ select {
 
 .menu input[type="text"] {
     width: 250px;
+}
+
+::placeholder {
+    color: #dbd5cc;
 }
 
 .menu select {
@@ -86,17 +91,19 @@ select {
 
 .book_repr {
     width: 200px;
-    height: 450px;
+    height: 460px;
     margin: 20px;
     font-size: 10px;
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
 }
 
 .book_by {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 0;
 }
 
 .book_by p {
@@ -116,13 +123,13 @@ select {
 }
 
 .book_by input[type="submit"]:hover {
-    background-color: #6e3f3f;
+    background-color: #630e0e;
 }
 
 img {
     width: 200px;
     object-fit: cover;
-    border-radius: 5px;
+    border-radius: 3px;
 }
 
 .form {
