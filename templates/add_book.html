@@ -12,25 +12,25 @@
       <a href="/">home</a>
     </nav>
     {% if popup %}
-          <ul class=flashes>
-          {% for category, message in popup %}
-              <li class="{{ category }}">{{ message }}</li>
-          {% endfor %}
-          </ul>
+      <ul class=flashes>
+      {% for category, message in popup %}
+          <li class="{{ category }}">{{ message }}</li>
+      {% endfor %}
+      </ul>
     {% endif %}
-    <form action="/add_book" method="POST">
-      <label for="title">Book title:</label>
-      <input type="text" id="title" name="title" required><br><br>
-      <label for="isbn">ISBN13:</label>
+    <form class="form" action="/add_book" method="POST">
+      <label for="title">Book title</label>
+      <input type="text" id="title" name="title" maxlength="60" required><br><br>
+      <label for="isbn">ISBN13</label>
       <input type="text" id="isbn" name="isbn" placeholder="978-3-16-148410-0" maxlength="17" required ><br><br>
-      <label for="pub_year">Publication year:</label>
+      <label for="pub_year">Publication year</label>
       <input type="text" id="pub_year" name="pub_year" placeholder="1999" maxlength="4" required ><br><br>
-      <label for="authors">Author:</label>
-        <select name="author" id="authors" required>
-          {% for author_id, author_name in authors_dict.items() %}
-            <option value="{{ author_id }}">{{ author_name }}</option>
-          {% endfor %}
-        </select>
+      <label for="authors">Author</label>
+      <select name="author" id="authors" required>
+        {% for author_id, author_name in authors_dict.items() %}
+          <option value="{{ author_id }}">{{ author_name }}</option>
+        {% endfor %}
+      </select>
       <input type="submit" value="Add Book">
     </form>
   </body>

@@ -35,7 +35,7 @@
       </form>
       <form action="/search" method="GET">
         <label for="search_field"></label>
-        <input type="text" id="search_field" name="search" placeholder="search term...">
+        <input type="text" id="search_field" name="search" placeholder=" search term...">
         <input type="submit" value="SEARCH">
       </form>
     </nav>
@@ -46,16 +46,23 @@
         {% endfor %}
         </ul>
     {% endif %}
-    {% for book in books %}
-      <div>
-        <h3>{{ book.title }}</h3>
-        <img src="{{ book.cover_url }}" alt="book_cover from openlibrary api"/>
-        <p>by {{ book.author }}</p>
-        <form action="/book/{{ book.book_id }}/delete" method="GET">
-          <input type="submit" value="DELETE">
-        </form>
-      </div>
-    {% endfor %}
+    <div class="bulk_body">
+      {% for book in books %}
+        <div class="book_repr">
+          <h3>{{ book.title }}</h3>
+          <img src="{{ book.cover_url }}" alt="book_cover from openlibrary api"/>
+          <div class="book_by">
+            <p>by {{ book.author }}</p>
+            <form action="/author/{{ book.author_id }}/delete" method="GET">
+              <input type="submit" value="del all by">
+            </form>
+          </div>
+          <form style="margin-top: auto;" action="/book/{{ book.book_id }}/delete" method="GET">
+            <input type="submit" value="DELETE">
+          </form>
+        </div>
+      {% endfor %}
+    </div>
 
   </body>
 </html>

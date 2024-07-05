@@ -54,7 +54,8 @@ def index():
             {'title': row[0],
              'author': author_name,
              'cover_url': cover_url,
-             'book_id': row[3]}
+             'book_id': row[3],
+             'author_id': row[1]}
         )
     return render_template('home.html', books=books_list,
                            popup=popup), 200
@@ -62,33 +63,29 @@ def index():
 
 def get_sorted_rows(sort_crit, sort_dir):
     """Handle sorting args in the query string, return sorted table rows."""
+    rows = db.session.query(Book.title, Book.author_id, Book.isbn,
+                            Book.book_id)
     if sort_crit == 'title':
         if sort_dir == 'desc':
-            rows = db.session.query(Book.title, Book.author_id, Book.isbn) \
-                .order_by(Book.title.desc()).all()
+            rows = rows.order_by(Book.title.desc()).all()
         else:
-            rows = db.session.query(Book.title, Book.author_id, Book.isbn) \
-                .order_by(Book.title).all()
+            rows = rows.order_by(Book.title).all()
     elif sort_crit == 'author':
         if sort_dir == 'desc':
-            rows = db.session.query(Book.title, Book.author_id, Book.isbn) \
-                .join(Author).order_by(Author.name.desc()).all()
+            rows = rows.join(Author).order_by(Author.name.desc()).all()
         else:
-            rows = db.session.query(Book.title, Book.author_id, Book.isbn) \
-                .join(Author).order_by(Author.name).all()
-    else:  # for 'year'
+            rows = rows.join(Author).order_by(Author.name).all()
+    elif sort_crit == 'year':
         if sort_dir == 'desc':
-            rows = db.session.query(Book.title, Book.author_id, Book.isbn) \
-                .order_by(Book.year.desc()).all()
+            rows = rows.order_by(Book.publication_year.desc()).all()
         else:
-            rows = db.session.query(Book.title, Book.author_id, Book.isbn) \
-                .order_by(Book.year).all()
+            rows = rows.order_by(Book.publication_year).all()
     return rows
 
 
 @app.route('/search')
 def search():
-    """Returns a list of books where search query matches at least one of
+    """Return a list of books where search query matches at least one of
     ["title", "author", "publication_year"]. Year as string, so 199 works."""
     search_term = request.args.get('search').lower()
     rows = db.session.query(Book.title, Book.author_id, Book.isbn,
@@ -123,6 +120,18 @@ def delete(book_id: int):
     db.session.delete(book_obj_to_del)
     db.session.commit()
     flash(f"'{book_title}' successfully deleted from database.", "info")
+    return redirect(url_for('index')), 302
+
+
+@app.route('/author/<int:author_id>/delete')
+def delete_by_author(author_id: int):
+    """Remove all works by author_id from the database. Retain the author."""
+    book_objs_to_del = Book.query.filter(Book.author_id == author_id).all()
+    for book in book_objs_to_del:
+        db.session.delete(book)
+    db.session.commit()
+    author = Author.query.filter(Author.author_id == author_id).one()
+    flash(f"All books by {author} removed from the database.", "info")
     return redirect(url_for('index')), 302
 
 

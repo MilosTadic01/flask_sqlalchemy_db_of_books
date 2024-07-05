@@ -1,5 +1,34 @@
 body {
     background-color: #d1b08e;
+    font-family: Tahoma, Verdana, Segoe, sans-serif;
+    margin: 0;
+    color: #faf4ed;
+}
+
+input {
+    border: none;
+    height: 20px;
+    width: 200px;
+    margin-top: 5px;
+}
+
+input[type="submit"] {
+    background-color: #b58a5e;
+    color: #ffffff;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    height: 40px;
+}
+
+input[type="submit"]:hover {
+    background-color: #ad7237;
+}
+
+select {
+    margin-bottom: 50px;
+    margin-top: 5px;
 }
 
 .navbar {
@@ -9,15 +38,35 @@ body {
     align-items: center;
     padding: 0.5em;
     margin: 0;
+    background-color: #d6b492;
 }
 
 .menu {
     display: flex;
+    flex-direction: row;
     height: 40px;
     justify-content: space-around;
     align-items: center;
     padding: 0.5em;
     margin-bottom: 1em;
+    margin-top: 1em;
+}
+
+.menu input {
+    height: 20px;
+    font-size: 12px;
+    width: 100px;
+    margin-top: 0;
+    padding: 0;
+    background-color: #c9a37d;
+}
+
+.menu input[type="text"] {
+    width: 250px;
+}
+
+.menu select {
+    margin-bottom: 0;
 }
 
 .navbar a {
@@ -25,9 +74,72 @@ body {
     margin-right: 40px;
     color: white;
     text-decoration: none; /* Remove underline */
-    font-family: Tahoma, Verdana, Segoe, sans-serif;
     font-size: 2em;
     transition: background-color 0.3s;
+}
+
+.bulk_body {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 10px;
+}
+
+.book_repr {
+    width: 200px;
+    height: 450px;
+    margin: 20px;
+    font-size: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.book_by {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.book_by p {
+    margin-top: 13px;
+    margin-left: 1px;
+}
+
+.book_by input[type="submit"] {
+    width: 80px;
+    font-size: 10px;
+    height: 18px;
+    background-color: #c9a37d;
+    align-content: center;
+    line-height: normal;
+    vertical-align: middle;
+    padding: 3px;
+}
+
+.book_by input[type="submit"]:hover {
+    background-color: #6e3f3f;
+}
+
+img {
+    width: 200px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #faf4ed;
+    margin-top: 50px;
+}
+
+.form select {
+    border: none;
+    width: 200px;
+    height: 20px;
+    color: grey;
+    border-radius: 3px;
 }
 
 .flashes {
