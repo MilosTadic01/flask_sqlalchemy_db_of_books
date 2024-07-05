@@ -29,10 +29,7 @@ db.init_app(app)
 def index():
     """Render a page with database contents + book cover images. I'm not sure
      why we couldn't only fetch the cover image urls once and store
-    them in the DB, this is making the "rendering" much longer.
-
-    db.session.query allows column specs; returns [tuples]
-    Model.query (Book.query) forbids columns specs; returns [ORM objects] """
+    them in the DB, this is making the "rendering" much longer."""
     popup = get_flashed_messages(with_categories=True)
     rows = db.session.query(Book.title, Book.author_id, Book.isbn,
                             Book.book_id).all()
@@ -59,7 +56,7 @@ def index():
                            popup=popup), 200
 
 
-def get_sorted_rows(sort_crit, sort_dir):
+def get_sorted_rows(sort_crit: str, sort_dir: str):
     """Handle sorting args in the query string, return sorted table rows."""
     rows = db.session.query(Book.title, Book.author_id, Book.isbn,
                             Book.book_id)
@@ -133,7 +130,7 @@ def delete_by_author(author_id: int):
     return redirect(url_for('index')), 302
 
 
-def fetch_cover_url(isbn):
+def fetch_cover_url(isbn: str):
     """Fetch an image from OpenLibrary API. If unsuccessful facilitate for the
     displaying of alt= in the html."""
     cover_url = requests.get(GET_COVER_PREF + isbn + GET_COVER_SUFF).url
@@ -177,7 +174,6 @@ def add_author():
 def add_book():
     """Add book entry to books table. Display dropdown menu to force
     author input first."""
-
     if request.method == 'GET':
         popup = get_flashed_messages(with_categories=True)
 
@@ -212,8 +208,7 @@ def error_bad_request(error):
     """Handles bad sorting params for 'GET' and missing info for 'POST'."""
     if request.method == 'GET':
         pass
-    else:
-        return jsonify(message="Error: No fields may be empty"), 400
+    return jsonify(message="Error: No fields may be empty"), 400
 
 
 @app.errorhandler(404)
