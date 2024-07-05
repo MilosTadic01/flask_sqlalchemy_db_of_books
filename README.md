@@ -4,13 +4,14 @@ Welcome to my project page!
 This is an exercise in building a webpage representation of and an interface for a books database CRUD
 
 ### Tags
-`Flask-SQLAlchemy` `html` `css` `python` `flask` `server-side` `microframework` `Jinja2` `API fetching`
+`Flask-SQLAlchemy` `html` `css` `python` `flask` `SSR` `microframework` `Jinja2` `API fetching`
 
 ### Project features
 * SQLite db management
 * endpoint routing
 * image fetching from an API
 * templating / dynamic webpage generation via Jinja2
+* constraints flow design
 
 
 ## Installation
@@ -57,7 +58,13 @@ with app.app_context():
 
 ### Demo screenshot:
 
+#### Homepage
 ![image](https://github.com/MilosTadic01/flask_sqlalchemy_db_of_books/assets/140609365/ed8b8ca9-b72d-43cc-b1f0-a5f6ca2a4d35)
+
+#### Adding a book
+ISBN input is mandatory to ensure success in fetching an appropriate image from [OpenLibrary's API](https://openlibrary.org/developers/api). The formatting shouldn't matter, feel free to omit the hyphens or use ISBN10 as equal to ISBN13.
+![image](https://github.com/MilosTadic01/flask_sqlalchemy_db_of_books/assets/140609365/11e35f0a-dfef-4417-8fe9-241fc1bc1c21)
+
 
 ## Feedback
 
